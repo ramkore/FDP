@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Save, Eye, Monitor, Tablet, Smartphone, Plus, Undo, Redo } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { useAuth } from '../../contexts/AuthContext'
+import { DUMMY_USER } from '../../lib/constants'
 import { EditorProvider, EditableComponent } from './editor/EditorCore'
 import { EditableWrapper } from './editor/EditableWrapper'
 import PropertyEditor from './editor/PropertyEditor'
@@ -11,7 +11,7 @@ import { componentMap } from './components/FlexibleComponents'
 
 const FlexibleSiteBuilder = () => {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const user = DUMMY_USER
   const [siteData, setSiteData] = useState<any>(null)
   const [currentPage, setCurrentPage] = useState('home')
   const [loading, setLoading] = useState(true)
@@ -42,7 +42,7 @@ const FlexibleSiteBuilder = () => {
         .single()
 
       if (error) throw error
-      
+
       const siteWithDefaults = {
         ...data,
         subdomain: orgData.subdomain,
@@ -54,7 +54,7 @@ const FlexibleSiteBuilder = () => {
           }
         ]
       }
-      
+
       setSiteData(siteWithDefaults)
       addToHistory(siteWithDefaults)
     } catch (error) {
@@ -107,7 +107,7 @@ const FlexibleSiteBuilder = () => {
   const updateComponent = (componentId: string, updates: Partial<EditableComponent>) => {
     const newSiteData = { ...siteData }
     const currentPageData = newSiteData.pages.find((p: any) => p.id === currentPage)
-    
+
     if (currentPageData) {
       const componentIndex = currentPageData.components.findIndex((c: any) => c.id === componentId)
       if (componentIndex !== -1) {
@@ -124,7 +124,7 @@ const FlexibleSiteBuilder = () => {
   const deleteComponent = (componentId: string) => {
     const newSiteData = { ...siteData }
     const currentPageData = newSiteData.pages.find((p: any) => p.id === currentPage)
-    
+
     if (currentPageData) {
       currentPageData.components = currentPageData.components.filter((c: any) => c.id !== componentId)
       setSiteData(newSiteData)
@@ -135,7 +135,7 @@ const FlexibleSiteBuilder = () => {
   const duplicateComponent = (componentId: string) => {
     const newSiteData = { ...siteData }
     const currentPageData = newSiteData.pages.find((p: any) => p.id === currentPage)
-    
+
     if (currentPageData) {
       const component = currentPageData.components.find((c: any) => c.id === componentId)
       if (component) {
@@ -154,7 +154,7 @@ const FlexibleSiteBuilder = () => {
   const moveComponent = (componentId: string, direction: 'up' | 'down') => {
     const newSiteData = { ...siteData }
     const currentPageData = newSiteData.pages.find((p: any) => p.id === currentPage)
-    
+
     if (currentPageData) {
       const componentIndex = currentPageData.components.findIndex((c: any) => c.id === componentId)
       if (componentIndex !== -1) {
@@ -185,7 +185,7 @@ const FlexibleSiteBuilder = () => {
 
     const newSiteData = { ...siteData }
     const currentPageData = newSiteData.pages.find((p: any) => p.id === currentPage)
-    
+
     if (currentPageData) {
       currentPageData.components.push(newComponent)
       setSiteData(newSiteData)
@@ -199,15 +199,15 @@ const FlexibleSiteBuilder = () => {
       heading: { text: 'Your Heading', level: 'h2' },
       image: { src: 'https://via.placeholder.com/600x400', alt: 'Image', caption: '' },
       button: { text: 'Click Me', link: '#', variant: 'primary' },
-      hero: { 
-        title: 'Welcome to Our Site', 
+      hero: {
+        title: 'Welcome to Our Site',
         subtitle: 'Create amazing experiences',
         buttonText: 'Get Started',
         buttonLink: '#'
       },
       container: { maxWidth: '1200px', centerContent: true },
       grid: { columns: 3, gap: '1rem', items: [] },
-      form: { 
+      form: {
         title: 'Contact Us',
         fields: [
           { type: 'text', name: 'name', label: 'Name', required: true },
@@ -218,7 +218,7 @@ const FlexibleSiteBuilder = () => {
       spacer: { height: '50px' },
       divider: { style: 'solid', color: '#e5e7eb', thickness: '1px' },
       icon: { icon: '★', size: '24px', color: '#000000' },
-      accordion: { 
+      accordion: {
         items: [
           { title: 'Question 1', content: 'Answer 1' },
           { title: 'Question 2', content: 'Answer 2' }
@@ -289,9 +289,9 @@ const FlexibleSiteBuilder = () => {
       heading: { fontSize: '32px', color: '#1f2937', fontWeight: 'bold', marginBottom: '20px' },
       image: { width: '100%', borderRadius: '8px' },
       button: { display: 'inline-block' },
-      hero: { 
-        backgroundColor: '#1e40af', 
-        color: '#ffffff', 
+      hero: {
+        backgroundColor: '#1e40af',
+        color: '#ffffff',
         padding: '80px 20px',
         textAlign: 'center'
       },
@@ -423,11 +423,10 @@ const FlexibleSiteBuilder = () => {
                     <button
                       key={page.id}
                       onClick={() => setCurrentPage(page.id)}
-                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                        currentPage === page.id
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${currentPage === page.id
                           ? 'bg-primary text-white'
                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                      }`}
+                        }`}
                     >
                       {page.name}
                     </button>
@@ -454,7 +453,7 @@ const FlexibleSiteBuilder = () => {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {getCurrentPage()?.components?.map((component: EditableComponent) => 
+                      {getCurrentPage()?.components?.map((component: EditableComponent) =>
                         renderComponent(component)
                       )}
                     </div>

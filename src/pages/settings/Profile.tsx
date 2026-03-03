@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useAuth } from '../../contexts/AuthContext'
+import { DUMMY_USER } from '../../lib/constants'
 import { supabase } from '../../lib/supabase'
 import { User, Mail, Building, Globe, Save, ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -12,7 +12,7 @@ interface Organization {
 }
 
 const Profile = () => {
-  const { user, signOut } = useAuth()
+  const user = DUMMY_USER
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -36,7 +36,7 @@ const Profile = () => {
         .single()
 
       if (error) throw error
-      
+
       setOrganization(data)
       setFormData({
         name: data.name || '',
@@ -63,7 +63,7 @@ const Profile = () => {
         .eq('id', user?.id)
 
       if (error) throw error
-      
+
       await fetchOrganization()
     } catch (error) {
       console.error('Error updating profile:', error)
@@ -96,7 +96,7 @@ const Profile = () => {
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-medium text-gray-900">Account Information</h2>
           </div>
-          
+
           <form onSubmit={handleSave} className="p-6 space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

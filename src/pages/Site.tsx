@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Globe, Edit, Eye, Settings, Monitor, Tablet, Smartphone, CheckCircle, AlertCircle, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { useAuth } from '../contexts/AuthContext'
+import { DUMMY_USER } from '../lib/constants'
 
 const Site = () => {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const user = DUMMY_USER
   const [siteData, setSiteData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notification, setNotification] = useState({ show: false, type: '', title: '', message: '' })
@@ -38,7 +38,7 @@ const Site = () => {
         .single()
 
       if (error && error.code !== 'PGRST116') throw error
-      
+
       if (data) {
         setSiteData(data)
       } else {
@@ -91,13 +91,13 @@ const Site = () => {
           },
           status: 'draft'
         }
-        
+
         const { data: newSite, error: createError } = await supabase
           .from('sites')
           .insert(defaultSite)
           .select()
           .single()
-          
+
         if (createError) throw createError
         setSiteData(newSite)
       }
@@ -122,7 +122,7 @@ const Site = () => {
         .eq('id', siteData.id)
 
       if (error) throw error
-      
+
       setSiteData(prev => ({ ...prev, status: 'published' }))
       setNotification({
         show: true,
@@ -164,21 +164,21 @@ const Site = () => {
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-semibold text-gray-900">Site Builder</h1>
           <div className="flex space-x-3">
-            <button 
+            <button
               onClick={() => setShowSettings(true)}
               className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
             >
               <Settings className="h-4 w-4 mr-2" />
               Settings
             </button>
-            <button 
+            <button
               onClick={() => window.open(`https://${siteData?.subdomain}.ezent.me`, '_blank')}
               className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
             >
               <Eye className="h-4 w-4 mr-2" />
               Preview
             </button>
-            <button 
+            <button
               onClick={() => navigate('/dashboard/site/builder')}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-light"
             >
@@ -200,25 +200,24 @@ const Site = () => {
                   <h3 className="text-lg font-medium text-gray-900">{siteData?.title}</h3>
                   <p className="text-sm text-gray-500">{siteData?.description}</p>
                   <div className="mt-2 flex items-center space-x-4">
-                    <a 
-                      href={`https://${siteData?.subdomain}.ezent.me`} 
-                      target="_blank" 
+                    <a
+                      href={`https://${siteData?.subdomain}.ezent.me`}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:text-primary-light text-sm font-medium"
                     >
                       {siteData?.subdomain}.ezent.me
                     </a>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      siteData?.status === 'published' 
-                        ? 'bg-green-100 text-green-800' 
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${siteData?.status === 'published'
+                        ? 'bg-green-100 text-green-800'
                         : 'bg-yellow-100 text-yellow-800'
-                    }`}>
+                      }`}>
                       {siteData?.status}
                     </span>
                   </div>
                 </div>
               </div>
-              
+
               {siteData?.status === 'draft' && (
                 <button
                   onClick={handlePublishSite}
@@ -239,39 +238,35 @@ const Site = () => {
               <div className="flex space-x-2">
                 <button
                   onClick={() => setPreviewDevice('desktop')}
-                  className={`p-2 rounded-lg transition-colors ${
-                    previewDevice === 'desktop' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'
-                  }`}
+                  className={`p-2 rounded-lg transition-colors ${previewDevice === 'desktop' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'
+                    }`}
                 >
                   <Monitor className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setPreviewDevice('tablet')}
-                  className={`p-2 rounded-lg transition-colors ${
-                    previewDevice === 'tablet' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'
-                  }`}
+                  className={`p-2 rounded-lg transition-colors ${previewDevice === 'tablet' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'
+                    }`}
                 >
                   <Tablet className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setPreviewDevice('mobile')}
-                  className={`p-2 rounded-lg transition-colors ${
-                    previewDevice === 'mobile' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'
-                  }`}
+                  className={`p-2 rounded-lg transition-colors ${previewDevice === 'mobile' ? 'bg-primary text-white' : 'text-gray-500 hover:bg-gray-100'
+                    }`}
                 >
                   <Smartphone className="h-4 w-4" />
                 </button>
               </div>
             </div>
           </div>
-          
+
           <div className="p-6">
             <div className="flex justify-center">
-              <div className={`border border-gray-300 rounded-lg overflow-hidden transition-all duration-300 ${
-                previewDevice === 'desktop' ? 'w-full max-w-6xl h-96' :
-                previewDevice === 'tablet' ? 'w-96 h-80' :
-                'w-64 h-96'
-              }`}>
+              <div className={`border border-gray-300 rounded-lg overflow-hidden transition-all duration-300 ${previewDevice === 'desktop' ? 'w-full max-w-6xl h-96' :
+                  previewDevice === 'tablet' ? 'w-96 h-80' :
+                    'w-64 h-96'
+                }`}>
                 <iframe
                   src={`https://${siteData?.subdomain}.ezent.me`}
                   className="w-full h-full"
@@ -338,9 +333,8 @@ const Site = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transform transition-all">
               <div className="flex items-start">
-                <div className={`flex-shrink-0 ${
-                  notification.type === 'success' ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <div className={`flex-shrink-0 ${notification.type === 'success' ? 'text-green-600' : 'text-red-600'
+                  }`}>
                   {notification.type === 'success' ? (
                     <CheckCircle className="h-6 w-6" />
                   ) : (
@@ -365,11 +359,10 @@ const Site = () => {
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={closeNotification}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    notification.type === 'success'
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${notification.type === 'success'
                       ? 'bg-green-600 text-white hover:bg-green-700'
                       : 'bg-red-600 text-white hover:bg-red-700'
-                  }`}
+                    }`}
                 >
                   OK
                 </button>

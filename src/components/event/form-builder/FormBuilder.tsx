@@ -6,7 +6,7 @@ import FormPreview from './FormPreview'
 
 export interface FormField {
   id: string
-  type: 'text' | 'email' | 'phone' | 'textarea' | 'select' | 'radio' | 'checkbox' | 'file' | 'date' | 'number' | 'url' | 'time' | 'datetime' | 'color' | 'range' | 'rating' | 'signature' | 'address' | 'country' | 'state' | 'city' | 'zipcode' | 'company' | 'job_title' | 'linkedin' | 'twitter' | 'instagram' | 'website' | 'emergency_contact' | 'dietary_restrictions' | 'tshirt_size' | 'gender' | 'age_group' | 'experience_level' | 'team_name' | 'team_size' | 'team_members' | 'team_leader' | 'organization_type' | 'industry' | 'referral_source' | 'special_requirements' | 'accessibility_needs' | 'payment_method' | 'invoice_details' | 'terms_acceptance' | 'newsletter_signup' | 'photo_consent' | 'data_consent'
+  type: 'text' | 'email' | 'phone' | 'textarea' | 'select' | 'radio' | 'checkbox' | 'file' | 'date' | 'number' | 'url' | 'time' | 'datetime' | 'color' | 'range' | 'rating' | 'signature' | 'address' | 'country' | 'state' | 'city' | 'zipcode' | 'company' | 'job_title' | 'linkedin' | 'twitter' | 'instagram' | 'website' | 'emergency_contact' | 'dietary_restrictions' | 'tshirt_size' | 'gender' | 'age_group' | 'experience_level' | 'team_name' | 'team_size' | 'team_members' | 'team_leader' | 'organization_type' | 'industry' | 'referral_source' | 'special_requirements' | 'accessibility_needs' | 'terms_acceptance' | 'newsletter_signup' | 'photo_consent' | 'data_consent'
   label: string
   placeholder?: string
   required: boolean
@@ -123,7 +123,7 @@ const FormBuilder = ({ eventData, setEventData, onPrev }: Props) => {
     const updatedFields = editingField?.id && fields.find(f => f.id === editingField.id)
       ? fields.map(f => f.id === field.id ? field : f)
       : [...fields, field]
-    
+
     setFields(updatedFields)
     setEventData({ ...eventData, registration_form: updatedFields })
     setEditingField(null)
@@ -145,7 +145,7 @@ const FormBuilder = ({ eventData, setEventData, onPrev }: Props) => {
     const updatedFields = [...fields]
     const [movedField] = updatedFields.splice(index, 1)
     updatedFields.splice(newIndex, 0, movedField)
-    
+
     setFields(updatedFields)
     setEventData({ ...eventData, registration_form: updatedFields })
   }
@@ -172,7 +172,7 @@ const FormBuilder = ({ eventData, setEventData, onPrev }: Props) => {
           {/* Form Builder */}
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <h3 className="text-md font-medium text-gray-900 mb-4">Add Form Fields</h3>
-            
+
             {/* Category Tabs */}
             <div className="border-b border-gray-200 mb-6">
               <nav className="flex space-x-8 overflow-x-auto">
@@ -181,7 +181,7 @@ const FormBuilder = ({ eventData, setEventData, onPrev }: Props) => {
                   if (category === 'team' && eventData.participation_type !== 'team') {
                     return null
                   }
-                  
+
                   const categoryNames = {
                     basic: 'Basic',
                     contact: 'Contact',
@@ -193,16 +193,15 @@ const FormBuilder = ({ eventData, setEventData, onPrev }: Props) => {
                     advanced: 'Advanced',
                     legal: 'Legal'
                   }
-                  
+
                   return (
                     <button
                       key={category}
                       onClick={() => setActiveCategory(category)}
-                      className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                        activeCategory === category
+                      className={`py-2 px-1 border-b-2 font-medium text-sm ${activeCategory === category
                           ? 'border-primary text-primary'
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
+                        }`}
                     >
                       {categoryNames[category as keyof typeof categoryNames]}
                       <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">
@@ -219,7 +218,7 @@ const FormBuilder = ({ eventData, setEventData, onPrev }: Props) => {
               {(() => {
                 const categoryFields = fieldCategories[activeCategory as keyof typeof fieldCategories]
                 if (!categoryFields) return null
-                
+
                 const categoryTitles = {
                   basic: 'Basic Information Fields',
                   contact: 'Contact & Address Fields',
@@ -231,7 +230,7 @@ const FormBuilder = ({ eventData, setEventData, onPrev }: Props) => {
                   advanced: 'Advanced Input Fields',
                   legal: 'Legal & Consent Fields'
                 }
-                
+
                 return (
                   <div>
                     <h4 className="text-sm font-medium text-gray-900 mb-4">

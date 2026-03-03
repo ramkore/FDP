@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { useAuth } from '../../contexts/AuthContext'
+import { DUMMY_USER } from '../../lib/constants'
 import BasicDetails from './BasicDetails'
 import EventSettings from './EventSettings'
 import FormBuilder from './form-builder/FormBuilder'
@@ -11,7 +11,7 @@ import { EventData } from './CreateEvent'
 const EditEvent = () => {
   const navigate = useNavigate()
   const { eventId } = useParams()
-  const { user } = useAuth()
+  const user = DUMMY_USER
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [fetchLoading, setFetchLoading] = useState(true)
@@ -58,7 +58,7 @@ const EditEvent = () => {
         .single()
 
       if (error) throw error
-      
+
       setEventData({
         title: data.title || '',
         description: data.description || '',
@@ -89,7 +89,7 @@ const EditEvent = () => {
 
   const handleSave = async (status: 'draft' | 'published') => {
     if (!user || !eventId) return
-    
+
     setLoading(true)
     try {
       const { error } = await supabase
@@ -162,11 +162,10 @@ const EditEvent = () => {
               <button
                 key={step.id}
                 onClick={() => setCurrentStep(step.id)}
-                className={`px-4 py-2 text-sm font-medium rounded-md ${
-                  currentStep === step.id
+                className={`px-4 py-2 text-sm font-medium rounded-md ${currentStep === step.id
                     ? 'bg-primary text-white'
                     : 'text-gray-500 hover:text-gray-700'
-                }`}
+                  }`}
               >
                 {step.name}
               </button>

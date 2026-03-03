@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { DUMMY_USER } from '../lib/constants'
 
 const Navbar = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const user = DUMMY_USER
 
   const solutions = [
     { name: 'Analytics', desc: 'Track your performance' },
@@ -29,7 +31,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-8">
             <div className="text-2xl font-bold text-primary">Ezent</div>
-            
+
             <div className="hidden md:flex items-center space-x-1">
               {[
                 { name: 'Solutions', items: solutions },
@@ -48,7 +50,7 @@ const Navbar = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
-                  
+
                   {activeDropdown === menu.name && (
                     <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-100 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                       {menu.items.map((item) => (
@@ -65,7 +67,7 @@ const Navbar = () => {
                   )}
                 </div>
               ))}
-              
+
               <a href="/events" className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary transition-colors duration-200">
                 Events
               </a>
@@ -76,12 +78,6 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center space-x-3">
-            <a href="/login" className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary transition-colors duration-200">
-              Login
-            </a>
-            <a href="/signup" className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary-light transition-colors duration-200">
-              Sign up
-            </a>
           </div>
         </div>
       </div>

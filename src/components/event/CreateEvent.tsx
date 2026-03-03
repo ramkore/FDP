@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { useAuth } from '../../contexts/AuthContext'
+import { DUMMY_USER } from '../../lib/constants'
 import BasicDetails from './BasicDetails'
 import EventSettings from './EventSettings'
 import FormBuilder from './form-builder/FormBuilder'
@@ -30,7 +30,7 @@ export interface EventData {
 
 const CreateEvent = () => {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const user = DUMMY_USER
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [eventData, setEventData] = useState<EventData>({
@@ -62,7 +62,7 @@ const CreateEvent = () => {
 
   const handleSave = async (status: 'draft' | 'published') => {
     if (!user) return
-    
+
     setLoading(true)
     try {
       const { error } = await supabase
@@ -126,11 +126,10 @@ const CreateEvent = () => {
               <button
                 key={step.id}
                 onClick={() => setCurrentStep(step.id)}
-                className={`px-4 py-2 text-sm font-medium rounded-md ${
-                  currentStep === step.id
+                className={`px-4 py-2 text-sm font-medium rounded-md ${currentStep === step.id
                     ? 'bg-primary text-white'
                     : 'text-gray-500 hover:text-gray-700'
-                }`}
+                  }`}
               >
                 {step.name}
               </button>

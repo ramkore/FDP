@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Save, Eye, Monitor, Tablet, Smartphone, Plus, Undo, Redo } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { useAuth } from '../../contexts/AuthContext'
+import { DUMMY_USER } from '../../lib/constants'
 import { EditorProvider, EditableComponent } from './editor/EditorCore'
 import PropertyEditor from './editor/PropertyEditor'
 import ComponentLibrary from './editor/ComponentLibrary'
@@ -11,7 +11,7 @@ import { EditableWrapper } from './editor/EditableWrapper'
 
 const SiteBuilder = () => {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const user = DUMMY_USER
   const [siteData, setSiteData] = useState(null)
   const [currentPage, setCurrentPage] = useState('home')
   const [previewDevice, setPreviewDevice] = useState('desktop')
@@ -86,7 +86,7 @@ const SiteBuilder = () => {
         .eq('id', siteData.id)
 
       if (error) throw error
-      
+
       setNotification({
         show: true,
         type: 'success',
@@ -143,7 +143,7 @@ const SiteBuilder = () => {
 
     const newSiteData = { ...siteData }
     const currentPageData = newSiteData.pages.find((p: any) => p.id === currentPage)
-    
+
     if (currentPageData) {
       currentPageData.components.push(newComponent)
       setSiteData(newSiteData)
@@ -157,8 +157,8 @@ const SiteBuilder = () => {
       heading: { text: 'Your Heading', level: 'h2' },
       image: { src: 'https://via.placeholder.com/600x400', alt: 'Image', caption: '' },
       button: { text: 'Click Me', link: '#', variant: 'primary' },
-      hero: { 
-        title: 'Welcome to Our Site', 
+      hero: {
+        title: 'Welcome to Our Site',
         subtitle: 'Create amazing experiences',
         buttonText: 'Get Started',
         buttonLink: '#'
@@ -173,9 +173,9 @@ const SiteBuilder = () => {
       heading: { fontSize: '32px', color: '#1f2937', fontWeight: 'bold', marginBottom: '20px' },
       image: { width: '100%', borderRadius: '8px' },
       button: { display: 'inline-block' },
-      hero: { 
-        backgroundColor: '#1e40af', 
-        color: '#ffffff', 
+      hero: {
+        backgroundColor: '#1e40af',
+        color: '#ffffff',
         padding: '80px 20px',
         textAlign: 'center'
       }
@@ -186,7 +186,7 @@ const SiteBuilder = () => {
   const updateComponent = (componentId: string, updates: Partial<EditableComponent>) => {
     const newSiteData = { ...siteData }
     const currentPageData = newSiteData.pages.find((p: any) => p.id === currentPage)
-    
+
     if (currentPageData) {
       const componentIndex = currentPageData.components.findIndex((c: any) => c.id === componentId)
       if (componentIndex !== -1) {
@@ -203,7 +203,7 @@ const SiteBuilder = () => {
   const deleteComponent = (componentId: string) => {
     const newSiteData = { ...siteData }
     const currentPageData = newSiteData.pages.find((p: any) => p.id === currentPage)
-    
+
     if (currentPageData) {
       currentPageData.components = currentPageData.components.filter((c: any) => c.id !== componentId)
       setSiteData(newSiteData)
@@ -214,7 +214,7 @@ const SiteBuilder = () => {
   const duplicateComponent = (componentId: string) => {
     const newSiteData = { ...siteData }
     const currentPageData = newSiteData.pages.find((p: any) => p.id === currentPage)
-    
+
     if (currentPageData) {
       const component = currentPageData.components.find((c: any) => c.id === componentId)
       if (component) {
@@ -233,7 +233,7 @@ const SiteBuilder = () => {
   const moveComponent = (componentId: string, direction: 'up' | 'down') => {
     const newSiteData = { ...siteData }
     const currentPageData = newSiteData.pages.find((p: any) => p.id === currentPage)
-    
+
     if (currentPageData) {
       const componentIndex = currentPageData.components.findIndex((c: any) => c.id === componentId)
       if (componentIndex !== -1) {
@@ -286,126 +286,125 @@ const SiteBuilder = () => {
       onDuplicateComponent={duplicateComponent}
       onMoveComponent={moveComponent}
     >
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => navigate('/dashboard/site')}
-              className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
-            >
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Back to Site
-            </button>
-            <h1 className="text-xl font-semibold text-gray-900">Flexible Site Builder</h1>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            {/* History Controls */}
-            <div className="flex space-x-1">
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
               <button
-                onClick={undo}
-                disabled={historyIndex <= 0}
-                className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50"
-                title="Undo"
+                onClick={() => navigate('/dashboard/site')}
+                className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
               >
-                <Undo className="h-4 w-4" />
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Back to Site
               </button>
-              <button
-                onClick={redo}
-                disabled={historyIndex >= history.length - 1}
-                className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50"
-                title="Redo"
-              >
-                <Redo className="h-4 w-4" />
-              </button>
+              <h1 className="text-xl font-semibold text-gray-900">Flexible Site Builder</h1>
             </div>
 
-            <button
-              onClick={() => window.open(`https://${siteData?.subdomain}.ezent.me`, '_blank')}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              Preview
-            </button>
-
-            <button
-              onClick={handleSaveSite}
-              disabled={saving}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-light disabled:opacity-50"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              {saving ? 'Saving...' : 'Save'}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex h-screen">
-        {/* Component Library */}
-        <div className="w-80 bg-white border-r border-gray-200 overflow-y-auto">
-          <ComponentLibrary onAddComponent={addComponent} />
-        </div>
-
-        {/* Main Builder Area */}
-        <div className="flex-1 flex flex-col">
-          {/* Page Tabs */}
-          <div className="bg-white border-b border-gray-200 px-6 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex space-x-4">
-                {siteData?.pages?.map(page => (
-                  <button
-                    key={page.id}
-                    onClick={() => setCurrentPage(page.id)}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      currentPage === page.id
-                        ? 'bg-primary text-white'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                    }`}
-                  >
-                    {page.name}
-                  </button>
-                ))}
+            <div className="flex items-center space-x-4">
+              {/* History Controls */}
+              <div className="flex space-x-1">
+                <button
+                  onClick={undo}
+                  disabled={historyIndex <= 0}
+                  className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                  title="Undo"
+                >
+                  <Undo className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={redo}
+                  disabled={historyIndex >= history.length - 1}
+                  className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                  title="Redo"
+                >
+                  <Redo className="h-4 w-4" />
+                </button>
               </div>
 
+              <button
+                onClick={() => window.open(`https://${siteData?.subdomain}.ezent.me`, '_blank')}
+                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Preview
+              </button>
+
+              <button
+                onClick={handleSaveSite}
+                disabled={saving}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-light disabled:opacity-50"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {saving ? 'Saving...' : 'Save'}
+              </button>
             </div>
           </div>
+        </div>
 
-          {/* Builder Content */}
-          <div className="flex-1 flex">
-            <div className="flex-1 overflow-y-auto p-6">
-              <div className="max-w-6xl mx-auto">
-                {getCurrentPage()?.components?.length === 0 ? (
-                  <div className="text-center py-20">
-                    <div className="text-gray-400 mb-4">
-                      <Plus className="h-16 w-16 mx-auto" />
+        <div className="flex h-screen">
+          {/* Component Library */}
+          <div className="w-80 bg-white border-r border-gray-200 overflow-y-auto">
+            <ComponentLibrary onAddComponent={addComponent} />
+          </div>
+
+          {/* Main Builder Area */}
+          <div className="flex-1 flex flex-col">
+            {/* Page Tabs */}
+            <div className="bg-white border-b border-gray-200 px-6 py-3">
+              <div className="flex items-center justify-between">
+                <div className="flex space-x-4">
+                  {siteData?.pages?.map(page => (
+                    <button
+                      key={page.id}
+                      onClick={() => setCurrentPage(page.id)}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${currentPage === page.id
+                          ? 'bg-primary text-white'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        }`}
+                    >
+                      {page.name}
+                    </button>
+                  ))}
+                </div>
+
+              </div>
+            </div>
+
+            {/* Builder Content */}
+            <div className="flex-1 flex">
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="max-w-6xl mx-auto">
+                  {getCurrentPage()?.components?.length === 0 ? (
+                    <div className="text-center py-20">
+                      <div className="text-gray-400 mb-4">
+                        <Plus className="h-16 w-16 mx-auto" />
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Start Building Your Page
+                      </h3>
+                      <p className="text-gray-500">
+                        Add components from the library to get started
+                      </p>
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      Start Building Your Page
-                    </h3>
-                    <p className="text-gray-500">
-                      Add components from the library to get started
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {getCurrentPage()?.components?.map((component: EditableComponent) => 
-                      renderComponent(component)
-                    )}
-                  </div>
-                )}
+                  ) : (
+                    <div className="space-y-4">
+                      {getCurrentPage()?.components?.map((component: EditableComponent) =>
+                        renderComponent(component)
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Property Editor */}
-            <PropertyEditor />
+              {/* Property Editor */}
+              <PropertyEditor />
+            </div>
           </div>
         </div>
+
+
       </div>
-
-
-    </div>
     </EditorProvider>
   )
 }

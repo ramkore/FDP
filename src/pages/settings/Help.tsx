@@ -45,10 +45,6 @@ const Help = () => {
     {
       question: 'How do I change my subdomain?',
       answer: 'Subdomains can only be changed by contacting our support team. Please email us with your current and desired subdomain.'
-    },
-    {
-      question: 'What payment methods do you accept?',
-      answer: 'We accept all major credit cards, PayPal, and bank transfers for annual subscriptions.'
     }
   ]
 

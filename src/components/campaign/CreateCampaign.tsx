@@ -2,19 +2,19 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Calendar, Mail, MessageSquare, Phone, Upload, Info, Eye, Send, CheckCircle, AlertCircle, X } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { useAuth } from '../../contexts/AuthContext'
+import { DUMMY_USER } from '../../lib/constants'
 import Modal from '../Modal'
 import TemplateDesigner from './TemplateDesigner'
 
 const CreateCampaign = () => {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const user = DUMMY_USER
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [showCSVModal, setShowCSVModal] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [notification, setNotification] = useState({ show: false, type: '', title: '', message: '' })
-  
+
   const [campaignData, setCampaignData] = useState({
     name: '',
     schedule: '',
@@ -39,15 +39,15 @@ const CreateCampaign = () => {
   const handleCSVUpload = (event) => {
     const file = event.target.files[0]
     if (!file) return
-    
+
     setUploading(true)
     const reader = new FileReader()
-    
+
     reader.onload = (e) => {
       try {
         const csv = e.target.result
         const lines = csv.split('\n').filter(line => line.trim())
-        
+
         if (lines.length < 2) {
           setNotification({
             show: true,
@@ -58,18 +58,18 @@ const CreateCampaign = () => {
           setUploading(false)
           return
         }
-        
+
         const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/["/]/g, ''))
         const contacts = []
-        
+
         for (let i = 1; i < lines.length; i++) {
           const values = lines[i].split(',').map(v => v.trim().replace(/["/]/g, ''))
           const contact = {}
-          
+
           headers.forEach((header, index) => {
             contact[header] = values[index] || ''
           })
-          
+
           // Normalize field names
           const normalizedContact = {
             name: contact.name || contact.user_name || contact['user name'] || contact.username || 'Unknown',
@@ -78,12 +78,12 @@ const CreateCampaign = () => {
             user_name: contact.name || contact.user_name || contact['user name'] || contact.username || 'Unknown',
             user_email: contact.email || contact.user_email || contact['user email'] || contact['email address'] || ''
           }
-          
+
           if (normalizedContact.email) {
             contacts.push(normalizedContact)
           }
         }
-        
+
         setCampaignData(prev => ({ ...prev, contacts }))
         console.log('Loaded contacts:', contacts)
       } catch (error) {
@@ -99,7 +99,7 @@ const CreateCampaign = () => {
         event.target.value = '' // Reset file input
       }
     }
-    
+
     reader.onerror = () => {
       setNotification({
         show: true,
@@ -109,7 +109,7 @@ const CreateCampaign = () => {
       })
       setUploading(false)
     }
-    
+
     reader.readAsText(file)
   }
 
@@ -158,32 +158,23 @@ const CreateCampaign = () => {
   const handleSendCampaign = async () => {
     setLoading(true)
     try {
-      console.log('Sending campaign with data:', {
-        campaignId: 'new',
-        campaignData: { ...campaignData, schedule: null },
-        organizationId: user.id
-      })
-      
-      const { data, error } = await supabase.functions.invoke('send-campaign', {
-        body: {
-          campaignId: 'new',
-          campaignData: { ...campaignData, schedule: null },
-          organizationId: user.id
-        }
-      })
-
-      if (error) {
-        console.error('Supabase function error:', error)
-        setNotification({
-          show: true,
-          type: 'error',
-          title: 'Send Failed',
-          message: `Error sending campaign: ${error.message}`
+      const { data, error } = await supabase
+        .from('campaigns')
+        .insert({
+          organization_id: user.id,
+          name: campaignData.name,
+          type: campaignData.type,
+          schedule: null,
+          template: campaignData.template,
+          contacts: campaignData.contacts,
+          status: 'sent',
+          sent_count: campaignData.contacts.length
         })
-        return
-      }
-      
-      console.log('Campaign sent successfully:', data)
+        .select()
+        .single()
+
+      if (error) throw error
+
       setNotification({
         show: true,
         type: 'success',
@@ -266,15 +257,13 @@ const CreateCampaign = () => {
           <div className="flex items-center">
             {[1, 2, 3].map((step) => (
               <div key={step} className="flex items-center">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                  currentStep >= step ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'
-                }`}>
+                <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${currentStep >= step ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'
+                  }`}>
                   {step}
                 </div>
                 {step < 3 && (
-                  <div className={`w-16 h-1 mx-2 ${
-                    currentStep > step ? 'bg-primary' : 'bg-gray-200'
-                  }`} />
+                  <div className={`w-16 h-1 mx-2 ${currentStep > step ? 'bg-primary' : 'bg-gray-200'
+                    }`} />
                 )}
               </div>
             ))}
@@ -291,7 +280,7 @@ const CreateCampaign = () => {
           {currentStep === 1 && (
             <div className="p-8">
               <h2 className="text-lg font-medium text-gray-900 mb-6">Basic Information</h2>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   <div>
@@ -336,18 +325,15 @@ const CreateCampaign = () => {
                       <button
                         key={value}
                         onClick={() => handleBasicInfoChange('type', value)}
-                        className={`flex items-center p-6 border rounded-xl transition-all duration-200 text-left ${
-                          campaignData.type === value
-                            ? 'border-primary bg-gradient-to-r from-primary/10 to-blue-50 text-primary shadow-sm'
-                            : 'border-gray-300 hover:border-gray-400 hover:shadow-sm'
-                        }`}
+                        className={`flex items-center p-6 border rounded-xl transition-all duration-200 text-left ${campaignData.type === value
+                          ? 'border-primary bg-gradient-to-r from-primary/10 to-blue-50 text-primary shadow-sm'
+                          : 'border-gray-300 hover:border-gray-400 hover:shadow-sm'
+                          }`}
                       >
-                        <div className={`p-3 rounded-lg mr-4 ${
-                          campaignData.type === value ? 'bg-primary/20' : 'bg-gray-100'
-                        }`}>
-                          <Icon className={`h-6 w-6 ${
-                            campaignData.type === value ? 'text-primary' : 'text-gray-500'
-                          }`} />
+                        <div className={`p-3 rounded-lg mr-4 ${campaignData.type === value ? 'bg-primary/20' : 'bg-gray-100'
+                          }`}>
+                          <Icon className={`h-6 w-6 ${campaignData.type === value ? 'text-primary' : 'text-gray-500'
+                            }`} />
                         </div>
                         <div>
                           <div className="font-semibold text-lg">{label}</div>
@@ -375,7 +361,7 @@ const CreateCampaign = () => {
           {currentStep === 2 && (
             <div className="p-2">
               <h2 className="text-lg font-medium text-gray-900 mb-6 px-4">Template Design</h2>
-              
+
               <TemplateDesigner
                 type={campaignData.type}
                 template={campaignData.template}
@@ -403,15 +389,13 @@ const CreateCampaign = () => {
           {currentStep === 3 && (
             <div className="p-8">
               <h2 className="text-lg font-medium text-gray-900 mb-6">Add Contacts</h2>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className={`border-2 border-dashed rounded-xl p-8 transition-colors ${
-                  uploading ? 'border-primary bg-primary/5' : 'border-gray-300'
-                }`}>
+                <div className={`border-2 border-dashed rounded-xl p-8 transition-colors ${uploading ? 'border-primary bg-primary/5' : 'border-gray-300'
+                  }`}>
                   <div className="text-center">
-                    <Upload className={`mx-auto h-12 w-12 ${
-                      uploading ? 'text-primary animate-pulse' : 'text-gray-400'
-                    }`} />
+                    <Upload className={`mx-auto h-12 w-12 ${uploading ? 'text-primary animate-pulse' : 'text-gray-400'
+                      }`} />
                     <div className="mt-4">
                       <label className="cursor-pointer">
                         <span className="mt-2 block text-sm font-medium text-gray-900">
@@ -536,9 +520,8 @@ const CreateCampaign = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transform transition-all">
               <div className="flex items-start">
-                <div className={`flex-shrink-0 ${
-                  notification.type === 'success' ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <div className={`flex-shrink-0 ${notification.type === 'success' ? 'text-green-600' : 'text-red-600'
+                  }`}>
                   {notification.type === 'success' ? (
                     <CheckCircle className="h-6 w-6" />
                   ) : (
@@ -563,11 +546,10 @@ const CreateCampaign = () => {
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={closeNotification}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    notification.type === 'success'
-                      ? 'bg-green-600 text-white hover:bg-green-700'
-                      : 'bg-red-600 text-white hover:bg-red-700'
-                  }`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${notification.type === 'success'
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-red-600 text-white hover:bg-red-700'
+                    }`}
                 >
                   OK
                 </button>

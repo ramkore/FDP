@@ -2,19 +2,19 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Calendar, Upload, Info, Eye, Send, CheckCircle, AlertCircle, X } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { useAuth } from '../../contexts/AuthContext'
+import { DUMMY_USER } from '../../lib/constants'
 import Modal from '../Modal'
 import CertificateTemplateDesigner from './CertificateTemplateDesigner'
 
 const CreateCertificate = () => {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const user = DUMMY_USER
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [showCSVModal, setShowCSVModal] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [notification, setNotification] = useState({ show: false, type: '', title: '', message: '' })
-  
+
   const [certificateData, setCertificateData] = useState({
     name: '',
     schedule: '',
@@ -52,15 +52,15 @@ const CreateCertificate = () => {
   const handleCSVUpload = (event) => {
     const file = event.target.files[0]
     if (!file) return
-    
+
     setUploading(true)
     const reader = new FileReader()
-    
+
     reader.onload = (e) => {
       try {
         const csv = e.target.result
         const lines = csv.split('\n').filter(line => line.trim())
-        
+
         if (lines.length < 2) {
           setNotification({
             show: true,
@@ -71,30 +71,30 @@ const CreateCertificate = () => {
           setUploading(false)
           return
         }
-        
+
         const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/["/]/g, ''))
         const recipients = []
-        
+
         for (let i = 1; i < lines.length; i++) {
           const values = lines[i].split(',').map(v => v.trim().replace(/["/]/g, ''))
           const recipient = {}
-          
+
           headers.forEach((header, index) => {
             recipient[header] = values[index] || ''
           })
-          
+
           const normalizedRecipient = {
             name: recipient.name || recipient.user_name || recipient['user name'] || recipient.username || 'Unknown',
             email: recipient.email || recipient.user_email || recipient['user email'] || recipient['email address'] || '',
             course_name: recipient.course_name || recipient['course name'] || recipient.course || recipient.event_name || recipient['event name'] || '',
             date: recipient.date || recipient.completion_date || recipient['completion date'] || new Date().toLocaleDateString()
           }
-          
+
           if (normalizedRecipient.email) {
             recipients.push(normalizedRecipient)
           }
         }
-        
+
         setCertificateData(prev => ({ ...prev, recipients }))
         console.log('Loaded recipients:', recipients)
       } catch (error) {
@@ -110,7 +110,7 @@ const CreateCertificate = () => {
         event.target.value = ''
       }
     }
-    
+
     reader.onerror = () => {
       setNotification({
         show: true,
@@ -120,7 +120,7 @@ const CreateCertificate = () => {
       })
       setUploading(false)
     }
-    
+
     reader.readAsText(file)
   }
 
@@ -168,37 +168,27 @@ const CreateCertificate = () => {
   const handlePublishCertificate = async () => {
     setLoading(true)
     try {
-      console.log('Publishing certificates with data:', {
-        certificateId: 'new',
-        certificateData: { ...certificateData, schedule: null },
-        organizationId: user.id
-      })
-      
-      const { data, error } = await supabase.functions.invoke('send-certificates', {
-        body: {
-          certificateId: 'new',
-          certificateData: { ...certificateData, schedule: null },
-          organizationId: user.id
-        }
-      })
-
-      if (error) {
-        console.error('Supabase function error:', error)
-        setNotification({
-          show: true,
-          type: 'error',
-          title: 'Publish Failed',
-          message: `Error publishing certificates: ${error.message}`
+      const { data, error } = await supabase
+        .from('certificates')
+        .insert({
+          organization_id: user.id,
+          name: certificateData.name,
+          schedule: null,
+          template: certificateData.template,
+          recipients: certificateData.recipients,
+          status: 'published',
+          issued_count: certificateData.recipients.length
         })
-        return
-      }
-      
-      console.log('Certificates published successfully:', data)
+        .select()
+        .single()
+
+      if (error) throw error
+
       setNotification({
         show: true,
         type: 'success',
         title: 'Certificates Published',
-        message: `${certificateData.recipients.length} certificates have been sent successfully!`
+        message: `${certificateData.recipients.length} certificates have been published successfully!`
       })
       setTimeout(() => navigate('/dashboard/certificates'), 2000)
     } catch (error) {
@@ -275,15 +265,13 @@ const CreateCertificate = () => {
           <div className="flex items-center">
             {[1, 2, 3].map((step) => (
               <div key={step} className="flex items-center">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                  currentStep >= step ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'
-                }`}>
+                <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${currentStep >= step ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'
+                  }`}>
                   {step}
                 </div>
                 {step < 3 && (
-                  <div className={`w-16 h-1 mx-2 ${
-                    currentStep > step ? 'bg-primary' : 'bg-gray-200'
-                  }`} />
+                  <div className={`w-16 h-1 mx-2 ${currentStep > step ? 'bg-primary' : 'bg-gray-200'
+                    }`} />
                 )}
               </div>
             ))}
@@ -300,7 +288,7 @@ const CreateCertificate = () => {
           {currentStep === 1 && (
             <div className="p-8">
               <h2 className="text-lg font-medium text-gray-900 mb-6">Basic Information</h2>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   <div>
@@ -371,7 +359,7 @@ const CreateCertificate = () => {
           {currentStep === 2 && (
             <div className="p-2">
               <h2 className="text-lg font-medium text-gray-900 mb-6 px-4">Template Design</h2>
-              
+
               <CertificateTemplateDesigner
                 template={certificateData.template}
                 onChange={handleTemplateChange}
@@ -398,15 +386,13 @@ const CreateCertificate = () => {
           {currentStep === 3 && (
             <div className="p-8">
               <h2 className="text-lg font-medium text-gray-900 mb-6">Add Recipients</h2>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className={`border-2 border-dashed rounded-xl p-8 transition-colors ${
-                  uploading ? 'border-primary bg-primary/5' : 'border-gray-300'
-                }`}>
+                <div className={`border-2 border-dashed rounded-xl p-8 transition-colors ${uploading ? 'border-primary bg-primary/5' : 'border-gray-300'
+                  }`}>
                   <div className="text-center">
-                    <Upload className={`mx-auto h-12 w-12 ${
-                      uploading ? 'text-primary animate-pulse' : 'text-gray-400'
-                    }`} />
+                    <Upload className={`mx-auto h-12 w-12 ${uploading ? 'text-primary animate-pulse' : 'text-gray-400'
+                      }`} />
                     <div className="mt-4">
                       <label className="cursor-pointer">
                         <span className="mt-2 block text-sm font-medium text-gray-900">
@@ -531,9 +517,8 @@ const CreateCertificate = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transform transition-all">
               <div className="flex items-start">
-                <div className={`flex-shrink-0 ${
-                  notification.type === 'success' ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <div className={`flex-shrink-0 ${notification.type === 'success' ? 'text-green-600' : 'text-red-600'
+                  }`}>
                   {notification.type === 'success' ? (
                     <CheckCircle className="h-6 w-6" />
                   ) : (
@@ -558,11 +543,10 @@ const CreateCertificate = () => {
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={closeNotification}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    notification.type === 'success'
-                      ? 'bg-green-600 text-white hover:bg-green-700'
-                      : 'bg-red-600 text-white hover:bg-red-700'
-                  }`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${notification.type === 'success'
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-red-600 text-white hover:bg-red-700'
+                    }`}
                 >
                   OK
                 </button>
@@ -590,8 +574,8 @@ const CreateCertificate = () => {
             <div className="bg-gray-50 p-3 rounded-md">
               <h5 className="font-medium text-gray-900 mb-2">Example CSV format:</h5>
               <code className="text-xs text-gray-700">
-                name,email,course_name,date<br/>
-                John Doe,john@example.com,Web Development,2024-03-15<br/>
+                name,email,course_name,date<br />
+                John Doe,john@example.com,Web Development,2024-03-15<br />
                 Jane Smith,jane@example.com,Data Science,2024-03-16
               </code>
             </div>

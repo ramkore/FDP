@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Award, Download, Eye, Users, MoreVertical, Trash2, CheckCircle, AlertCircle, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { useAuth } from '../contexts/AuthContext'
+import { DUMMY_USER } from '../lib/constants'
 
 const Certificates = () => {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const user = DUMMY_USER
   const [certificates, setCertificates] = useState([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({ totalIssued: 0, totalDownloaded: 0, totalTemplates: 0 })
@@ -47,7 +47,7 @@ const Certificates = () => {
 
   const handleDeleteCertificate = async () => {
     if (!deleteModal.certificate) return
-    
+
     setDeleting(true)
     try {
       const { error } = await supabase
@@ -57,7 +57,7 @@ const Certificates = () => {
         .eq('organization_id', user.id)
 
       if (error) throw error
-      
+
       setCertificates(prev => prev.filter(c => c.id !== deleteModal.certificate.id))
       setDeleteModal({ isOpen: false, certificate: null })
       setNotification({
@@ -88,7 +88,7 @@ const Certificates = () => {
       <div className="max-w-full mx-auto px-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-semibold text-gray-900">Certificates</h1>
-          <button 
+          <button
             onClick={() => navigate('/dashboard/certificates/create')}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-light"
           >
@@ -108,7 +108,7 @@ const Certificates = () => {
               <Award className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-4 text-lg font-medium text-gray-900">No certificates yet</h3>
               <p className="mt-2 text-gray-600">Get started by creating your first certificate template.</p>
-              <button 
+              <button
                 onClick={() => navigate('/dashboard/certificates/create')}
                 className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-light"
               >
@@ -136,17 +136,16 @@ const Certificates = () => {
                           <div className="text-right">
                             <p className="text-sm font-medium text-gray-900">{certificate.issued_count || 0} issued</p>
                           </div>
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            certificate.status === 'published' 
-                              ? 'bg-green-100 text-green-800'
-                              : certificate.status === 'draft'
-                              ? 'bg-yellow-100 text-yellow-800' 
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${certificate.status === 'published'
+                            ? 'bg-green-100 text-green-800'
+                            : certificate.status === 'draft'
+                              ? 'bg-yellow-100 text-yellow-800'
                               : 'bg-gray-100 text-gray-800'
-                          }`}>
+                            }`}>
                             {certificate.status}
                           </span>
                           <div className="relative">
-                            <button 
+                            <button
                               onClick={(e) => {
                                 e.stopPropagation()
                                 setActiveDropdown(activeDropdown === certificate.id ? null : certificate.id)
@@ -158,7 +157,7 @@ const Certificates = () => {
                             {activeDropdown === certificate.id && (
                               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
                                 <div className="py-1">
-                                  <button 
+                                  <button
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       setActiveDropdown(null)
@@ -168,7 +167,7 @@ const Certificates = () => {
                                     <Eye className="h-4 w-4 mr-2" />
                                     View
                                   </button>
-                                  <button 
+                                  <button
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       setDeleteModal({ isOpen: true, certificate })
@@ -247,9 +246,8 @@ const Certificates = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 transform transition-all">
               <div className="flex items-start">
-                <div className={`flex-shrink-0 ${
-                  notification.type === 'success' ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <div className={`flex-shrink-0 ${notification.type === 'success' ? 'text-green-600' : 'text-red-600'
+                  }`}>
                   {notification.type === 'success' ? (
                     <CheckCircle className="h-6 w-6" />
                   ) : (
@@ -274,11 +272,10 @@ const Certificates = () => {
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={closeNotification}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    notification.type === 'success'
-                      ? 'bg-green-600 text-white hover:bg-green-700'
-                      : 'bg-red-600 text-white hover:bg-red-700'
-                  }`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${notification.type === 'success'
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-red-600 text-white hover:bg-red-700'
+                    }`}
                 >
                   OK
                 </button>

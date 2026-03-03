@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Calendar, MapPin, Users, Edit, Trash2, Settings, RefreshCw, Search, Grid, List, Eye } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { useAuth } from '../contexts/AuthContext'
+import { DUMMY_USER } from '../lib/constants'
 import Modal from '../components/Modal'
 
 const Events = () => {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const user = DUMMY_USER
   const [events, setEvents] = useState([])
   const [filteredEvents, setFilteredEvents] = useState([])
   const [loading, setLoading] = useState(true)
@@ -30,7 +30,7 @@ const Events = () => {
 
   const fetchEvents = async () => {
     if (!user) return
-    
+
     try {
       const { data, error } = await supabase
         .from('events')
@@ -59,20 +59,20 @@ const Events = () => {
     }).length
     const upcoming = eventsData.filter(event => new Date(event.start_date) > now).length
     const past = eventsData.filter(event => new Date(event.end_date) < now).length
-    
+
     setStats({ total, active, upcoming, past })
   }
 
   const filterEvents = () => {
     let filtered = events
-    
+
     if (searchTerm) {
-      filtered = filtered.filter(event => 
+      filtered = filtered.filter(event =>
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.location?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
-    
+
     if (filterType !== 'all') {
       const now = new Date()
       filtered = filtered.filter(event => {
@@ -81,7 +81,7 @@ const Events = () => {
         return true
       })
     }
-    
+
     setFilteredEvents(filtered)
   }
 
@@ -111,7 +111,7 @@ const Events = () => {
         .eq('id', deleteModal.eventId)
 
       if (error) throw error
-      
+
       setEvents(events.filter(event => event.id !== deleteModal.eventId))
       setDeleteModal({ isOpen: false, eventId: '', eventTitle: '' })
     } catch (error) {
@@ -128,14 +128,14 @@ const Events = () => {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">Event Dashboard</h1>
           <div className="flex space-x-3">
-            <button 
+            <button
               onClick={handleRefresh}
               className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </button>
-            <button 
+            <button
               onClick={() => navigate('/dashboard/events/create')}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-light"
             >
@@ -205,7 +205,7 @@ const Events = () => {
                 </button>
               </div>
             </div>
-            
+
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -217,7 +217,7 @@ const Events = () => {
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
                 />
               </div>
-              
+
               <div className="flex space-x-2">
                 <button
                   onClick={() => setFilterType('all')}
@@ -255,7 +255,7 @@ const Events = () => {
                   {events.length === 0 ? 'Get started by creating your first event.' : 'Try adjusting your search or filters.'}
                 </p>
                 {events.length === 0 && (
-                  <button 
+                  <button
                     onClick={() => navigate('/dashboard/events/create')}
                     className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-light"
                   >
@@ -290,13 +290,12 @@ const Events = () => {
                           {event.location || event.online_link || 'Online'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            event.status === 'published' 
-                              ? 'bg-green-100 text-green-800' 
-                              : event.status === 'draft'
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${event.status === 'published'
+                            ? 'bg-green-100 text-green-800'
+                            : event.status === 'draft'
                               ? 'bg-yellow-100 text-yellow-800'
                               : 'bg-gray-100 text-gray-800'
-                          }`}>
+                            }`}>
                             {event.status}
                           </span>
                         </td>
@@ -335,17 +334,16 @@ const Events = () => {
                     <div className="p-6">
                       <div className="flex justify-between items-start mb-4">
                         <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          event.status === 'published' 
-                            ? 'bg-green-100 text-green-800' 
-                            : event.status === 'draft'
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${event.status === 'published'
+                          ? 'bg-green-100 text-green-800'
+                          : event.status === 'draft'
                             ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-gray-100 text-gray-800'
-                        }`}>
+                          }`}>
                           {event.status === 'published' ? 'Published' : event.status === 'draft' ? 'Draft' : event.status}
                         </span>
                       </div>
-                      
+
                       <div className="space-y-2 mb-4">
                         <div className="flex items-center text-sm text-gray-600">
                           <Calendar className="h-4 w-4 mr-2" />
@@ -363,14 +361,14 @@ const Events = () => {
 
                       <div className="space-y-2">
                         <div className="flex space-x-2">
-                          <button 
+                          <button
                             onClick={() => handleEdit(event.id)}
                             className="flex-1 inline-flex justify-center items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                           >
                             <Edit className="h-4 w-4 mr-1" />
                             Edit
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDeleteClick(event.id, event.title)}
                             className="flex-1 inline-flex justify-center items-center px-3 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50"
                           >
@@ -378,7 +376,7 @@ const Events = () => {
                             Delete
                           </button>
                         </div>
-                        <button 
+                        <button
                           onClick={() => handleManage(event.id)}
                           className="w-full inline-flex justify-center items-center px-3 py-2 border border-primary shadow-sm text-sm font-medium rounded-md text-primary bg-white hover:bg-primary hover:text-white transition-colors"
                         >

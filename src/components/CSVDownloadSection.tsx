@@ -7,7 +7,6 @@ const CSVDownloadSection = ({ eventId }) => {
   const [downloading, setDownloading] = useState(false)
   const [filters, setFilters] = useState({
     status: 'all',
-    paymentStatus: 'all',
     dateRange: 'all',
     includeFields: {
       name: true,
@@ -15,7 +14,6 @@ const CSVDownloadSection = ({ eventId }) => {
       team: true,
       registrationDate: true,
       status: true,
-      paymentStatus: true,
       formData: false
     }
   })
@@ -32,9 +30,6 @@ const CSVDownloadSection = ({ eventId }) => {
       // Apply filters
       if (filters.status !== 'all') {
         query = query.eq('status', filters.status)
-      }
-      if (filters.paymentStatus !== 'all') {
-        query = query.eq('payment_status', filters.paymentStatus)
       }
       if (filters.dateRange !== 'all') {
         const days = parseInt(filters.dateRange)
@@ -65,7 +60,6 @@ const CSVDownloadSection = ({ eventId }) => {
     if (includeFields.team) headers.push('Team Name')
     if (includeFields.registrationDate) headers.push('Registration Date')
     if (includeFields.status) headers.push('Status')
-    if (includeFields.paymentStatus) headers.push('Payment Status')
     if (includeFields.formData) headers.push('Form Data')
 
     const rows = data.map(row => {
@@ -75,7 +69,6 @@ const CSVDownloadSection = ({ eventId }) => {
       if (includeFields.team) csvRow.push(`"${row.team_name || ''}"`)
       if (includeFields.registrationDate) csvRow.push(`"${new Date(row.registration_date).toLocaleString()}"`)
       if (includeFields.status) csvRow.push(`"${row.status || ''}"`)
-      if (includeFields.paymentStatus) csvRow.push(`"${row.payment_status || ''}"`)
       if (includeFields.formData) csvRow.push(`"${JSON.stringify(row.form_data || {})}"`)
       return csvRow.join(',')
     })
@@ -138,20 +131,6 @@ const CSVDownloadSection = ({ eventId }) => {
             </select>
           </div>
 
-          {/* Payment Status Filter */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Payment Status</label>
-            <select
-              value={filters.paymentStatus}
-              onChange={(e) => setFilters(prev => ({ ...prev, paymentStatus: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-            >
-              <option value="all">All Payment Statuses</option>
-              <option value="completed">Completed</option>
-              <option value="pending">Pending</option>
-              <option value="failed">Failed</option>
-            </select>
-          </div>
 
           {/* Date Range Filter */}
           <div>
@@ -199,7 +178,7 @@ const CSVDownloadSection = ({ eventId }) => {
           <Download className="h-4 w-4 mr-2" />
           {downloading ? 'Downloading...' : 'Download CSV'}
         </button>
-        
+
         <button
           onClick={() => handleDownload()}
           disabled={downloading}

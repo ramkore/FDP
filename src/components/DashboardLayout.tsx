@@ -1,20 +1,22 @@
 import { useState } from 'react'
 import { Link, useLocation, Outlet } from 'react-router-dom'
-import { 
-  LayoutDashboard, 
-  Calendar, 
-  Megaphone, 
-  Award, 
-  Globe, 
+import {
+  LayoutDashboard,
+  Calendar,
+  Megaphone,
+  Award,
+  Globe,
   Ticket,
   Settings,
   Menu,
   X
 } from 'lucide-react'
+import { DUMMY_USER } from '../lib/constants'
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
+  const user = DUMMY_USER
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -51,11 +53,10 @@ const DashboardLayout = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${
-                      location.pathname === item.href
+                    className={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${location.pathname === item.href
                         ? 'bg-primary text-white'
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
+                      }`}
                   >
                     <Icon className="mr-4 h-6 w-6" />
                     {item.name}
@@ -83,11 +84,10 @@ const DashboardLayout = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                      location.pathname === item.href
+                    className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${location.pathname === item.href
                         ? 'bg-primary text-white'
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
+                      }`}
                   >
                     <Icon className="mr-3 h-5 w-5" />
                     {item.name}

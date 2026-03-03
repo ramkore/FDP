@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Eye, EyeOff, Trash2, UserCheck, UserX, Calendar, MapPin, Users, Clock, Share2, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { useAuth } from '../contexts/AuthContext'
+import { DUMMY_USER } from '../lib/constants'
 import Modal from '../components/Modal'
 import CSVDownloadSection from '../components/CSVDownloadSection'
 
 const ManageEvent = () => {
   const { eventId } = useParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const user = DUMMY_USER
   const [searchParams, setSearchParams] = useSearchParams()
   const [event, setEvent] = useState(null)
   const [registrations, setRegistrations] = useState([])
@@ -20,7 +20,7 @@ const ManageEvent = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  
+
   const activeTab = searchParams.get('tab')
   const isRegistrationTab = activeTab === 'registrationdata'
 
@@ -66,7 +66,7 @@ const ManageEvent = () => {
       const total = data?.length || 0
       const completed = data?.filter(r => r.status === 'registered').length || 0
       const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0
-      
+
       setRegistrationStats({ total, completionRate })
     } catch (error) {
       console.error('Error fetching registration stats:', error)
@@ -200,7 +200,7 @@ const ManageEvent = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-900">Event not found</h2>
-          <button 
+          <button
             onClick={() => navigate('/dashboard/events')}
             className="mt-4 text-primary hover:underline"
           >
@@ -235,17 +235,16 @@ const ManageEvent = () => {
                   <div className="mb-6">
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-semibold text-gray-900">{event.title}</h2>
-                      <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
-                        event.status === 'published' 
-                          ? 'bg-green-100 text-green-800' 
+                      <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${event.status === 'published'
+                          ? 'bg-green-100 text-green-800'
                           : event.status === 'draft'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
                         {event.status === 'published' ? 'Published' : event.status === 'draft' ? 'Draft' : event.status}
                       </span>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                       <div className="bg-blue-50 p-4 rounded-lg">
                         <h3 className="text-lg font-medium text-blue-900 mb-2">Total Registrations</h3>
@@ -271,7 +270,7 @@ const ManageEvent = () => {
                       <h2 className="text-xl font-semibold text-gray-900">Event Registrations</h2>
                     </div>
                   </div>
-                  
+
                   <div className="mb-4">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -296,11 +295,10 @@ const ManageEvent = () => {
                       <button
                         onClick={() => handleStatusUpdate(event.status === 'published' ? 'draft' : 'published')}
                         disabled={updating}
-                        className={`flex items-center justify-center px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${
-                          event.status === 'published'
+                        className={`flex items-center justify-center px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${event.status === 'published'
                             ? 'border-yellow-300 text-yellow-700 bg-yellow-50 hover:bg-yellow-100'
                             : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
-                        } disabled:opacity-50`}
+                          } disabled:opacity-50`}
                       >
                         {event.status === 'published' ? (
                           <>
@@ -318,11 +316,10 @@ const ManageEvent = () => {
                       <button
                         onClick={handleRegistrationToggle}
                         disabled={updating}
-                        className={`flex items-center justify-center px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${
-                          event.registration_open
+                        className={`flex items-center justify-center px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${event.registration_open
                             ? 'border-red-300 text-red-700 bg-red-50 hover:bg-red-100'
                             : 'border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100'
-                        } disabled:opacity-50`}
+                          } disabled:opacity-50`}
                       >
                         {event.registration_open ? (
                           <>
@@ -368,7 +365,7 @@ const ManageEvent = () => {
                     <p className="text-sm text-gray-600 mb-4">
                       Showing the 5 most recent registrations. Click "All Registrations" to view and manage all event registrations.
                     </p>
-                    
+
                     {registrations.length > 0 ? (
                       <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
@@ -393,13 +390,12 @@ const ManageEvent = () => {
                                   {new Date(registration.registration_date).toLocaleDateString()}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                    registration.status === 'registered' 
+                                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${registration.status === 'registered'
                                       ? 'bg-green-100 text-green-800'
                                       : registration.status === 'cancelled'
-                                      ? 'bg-red-100 text-red-800'
-                                      : 'bg-yellow-100 text-yellow-800'
-                                  }`}>
+                                        ? 'bg-red-100 text-red-800'
+                                        : 'bg-yellow-100 text-yellow-800'
+                                    }`}>
                                     {registration.status}
                                   </span>
                                 </td>
@@ -448,24 +444,22 @@ const ManageEvent = () => {
                             {new Date(registration.registration_date).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              registration.status === 'registered' 
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${registration.status === 'registered'
                                 ? 'bg-green-100 text-green-800'
                                 : registration.status === 'cancelled'
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-yellow-100 text-yellow-800'
-                            }`}>
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-yellow-100 text-yellow-800'
+                              }`}>
                               {registration.status}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              registration.payment_status === 'completed' 
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${registration.payment_status === 'completed'
                                 ? 'bg-green-100 text-green-800'
                                 : registration.payment_status === 'failed'
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-yellow-100 text-yellow-800'
-                            }`}>
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-yellow-100 text-yellow-800'
+                              }`}>
                               {registration.payment_status}
                             </span>
                           </td>
@@ -473,7 +467,7 @@ const ManageEvent = () => {
                       ))}
                     </tbody>
                   </table>
-                  
+
                   {/* Pagination */}
                   {totalPages > 1 && (
                     <div className="flex items-center justify-center mt-6 space-x-2">
@@ -484,24 +478,23 @@ const ManageEvent = () => {
                       >
                         <ChevronLeft className="h-4 w-4" />
                       </button>
-                      
+
                       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                         const page = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i
                         return (
                           <button
                             key={page}
                             onClick={() => handlePageChange(page)}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium ${
-                              page === currentPage
+                            className={`px-3 py-2 rounded-lg text-sm font-medium ${page === currentPage
                                 ? 'bg-primary text-white'
                                 : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             {page}
                           </button>
                         )
                       })}
-                      
+
                       <button
                         onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                         disabled={currentPage === totalPages}
@@ -521,18 +514,18 @@ const ManageEvent = () => {
             <div className="sticky top-6">
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Event Details</h3>
-                
+
                 {/* Banner Image */}
                 {event.banner_image && (
                   <div className="mb-4">
-                    <img 
-                      src={event.banner_image} 
+                    <img
+                      src={event.banner_image}
                       alt={event.title}
                       className="w-full h-32 object-cover rounded-lg"
                     />
                   </div>
                 )}
-                
+
                 <div className="space-y-4">
                   <div>
                     <h4 className="font-medium text-gray-900">{event.title}</h4>
@@ -571,13 +564,12 @@ const ManageEvent = () => {
                   <div className="pt-4 border-t">
                     <div className="flex items-center justify-between text-sm mb-4">
                       <span className="text-gray-600">Registration Status</span>
-                      <span className={`font-medium ${
-                        event.registration_open ? 'text-green-600' : 'text-red-600'
-                      }`}>
+                      <span className={`font-medium ${event.registration_open ? 'text-green-600' : 'text-red-600'
+                        }`}>
                         {event.registration_open ? 'Open' : 'Closed'}
                       </span>
                     </div>
-                    
+
                     <button
                       onClick={handleShareEvent}
                       className="w-full flex items-center justify-center px-4 py-2 border border-primary text-primary bg-white hover:bg-primary hover:text-white rounded-lg text-sm font-medium transition-colors"

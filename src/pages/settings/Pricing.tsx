@@ -1,14 +1,12 @@
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Check, CreditCard, Calendar } from 'lucide-react'
+import { ArrowLeft, Check, Calendar } from 'lucide-react'
 
 const Pricing = () => {
   const currentPlan = {
     name: 'Free Plan',
-    price: '$0',
-    billing: 'forever',
     features: [
-      'Up to 3 events per month',
-      'Basic registration forms',
+      'Unlimited events',
+      'Advanced registration forms',
       'Email support',
       'Subdomain hosting',
       'Up to 100 attendees per event'
@@ -123,9 +121,8 @@ const Pricing = () => {
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className={`bg-white rounded-lg shadow ${
-                  plan.popular ? 'ring-2 ring-primary' : ''
-                } relative`}
+                className={`bg-white rounded-lg shadow ${plan.popular ? 'ring-2 ring-primary' : ''
+                  } relative`}
               >
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -150,11 +147,10 @@ const Pricing = () => {
                     ))}
                   </ul>
                   <button
-                    className={`w-full mt-8 px-4 py-2 rounded-md text-sm font-medium ${
-                      plan.popular
+                    className={`w-full mt-8 px-4 py-2 rounded-md text-sm font-medium ${plan.popular
                         ? 'bg-primary text-white hover:bg-primary-light'
                         : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     {plan.popular ? 'Upgrade Now' : 'Choose Plan'}
                   </button>
