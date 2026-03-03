@@ -18,11 +18,6 @@ interface Event {
   location: string
   capacity: number
   registered: number
-  start_date: string
-  online_link?: string
-  pricing_type: string
-  currency: string
-  price: number
 }
 
 const SubdomainPage = () => {
@@ -117,7 +112,7 @@ const SubdomainPage = () => {
                 <div className="p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">{event.title}</h3>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">{event.description}</p>
-
+                  
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center text-sm text-gray-600">
                       <Calendar className="h-4 w-4 mr-2" />
@@ -145,9 +140,9 @@ const SubdomainPage = () => {
                     </div>
                   )}
 
-                  <button
+                  <button 
                     className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-light transition-colors disabled:opacity-50"
-                    disabled={false}
+                    disabled={event.capacity && false}
                   >
                     {event.pricing_type === 'free' ? 'Register Now' : `Register - ${event.currency} ${event.price}`}
                   </button>
