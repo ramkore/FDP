@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext'
 const Site = () => {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const [siteData, setSiteData] = useState(null)
+  const [siteData, setSiteData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [notification, setNotification] = useState({ show: false, type: '', title: '', message: '' })
   const [showSettings, setShowSettings] = useState(false)
